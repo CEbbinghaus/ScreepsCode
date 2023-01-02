@@ -5,47 +5,88 @@ const roleBuilder = {
 
 	/** @param {Creep} creep **/
 	run: function (creep) {
-
-		if(creep.memory.build) {
-			const target = creep.pos.findClosestByPath(creep.room.find(FIND_CONSTRUCTION_SITES));
+		if (creep.memory.build) {
+			const target = creep.pos.findClosestByPath(
+				creep.room.find(FIND_CONSTRUCTION_SITES)
+			);
 
 			if (!target) {
-				creep.memory.build = false;
-				return;
+				const walls = creep.room.find(FIND_STRUCTURES, {
+					filter: (structure) => {
+						return structure.structureType === STRUCTURE_WALL;
+					}
+				});
+
+				// const wall = walls.sort((a, b) => a.hits - b.hits).slice(0, 10);
+				const wall = creep.pos.findClosestByPath(walls.sort((a, b) => a.hits - b.hits).slice(0, 10));
+
+				if(wall) {
+					if(creep.repair(wall) == ERR_NOT_IN_RANGE)
+						creep.moveTo(wall);
+					
+				}else {
+					creep.memory.build = false;
+					return;
+				}
 			}
 
-			
 			creep.say("🚧");
-			if (creep.build(target) == ERR_NOT_IN_RANGE) {
+			if (target && creep.build(target) == ERR_NOT_IN_RANGE) {
 				creep.moveTo(target, {
 					visualizePathStyle: { stroke: "#ffffff" },
 				});
 			}
 
-			if(creep.store.energy <= 0) {
+			if (creep.store.energy <= 0) {
 				creep.memory.build = false;
 			}
 		} else {
-			if(creep.store.getFreeCapacity() > 0) {
-			
-				const source = creep.pos.findClosestByPath(creep.room.find(FIND_SOURCES_ACTIVE));
-				if(!source)
+			if (creep.store.getFreeCapacity() > 0) {
+
+				const storage = creep.pos.findClosestByPath(
+					creep.room.find(FIND_STRUCTURES, {
+						filter: (structure) => {
+							if (
+								structure.structureType !=
+									STRUCTURE_CONTAINER &&
+								structure.structureType != STRUCTURE_STORAGE
+							)
+								return false;
+							return structure.store[RESOURCE_ENERGY] > 0;
+						},
+					})
+				);
+
+				// console.log(storage)
+
+				if (storage) {
+					creep.say("⬆️");
+
+					if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+						creep.moveTo(storage, {
+							visualizePathStyle: { stroke: "#ffaa00" },
+						});
+					}
 					return;
-	
+				}
+
+				const source = creep.pos.findClosestByPath(
+					creep.room.find(FIND_SOURCES_ACTIVE)
+				);
+				if (!source) return;
+
 				creep.say("⛏️");
-	
+
 				if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
 					creep.moveTo(source, {
 						visualizePathStyle: { stroke: "#ffaa00" },
 					});
 				}
 				return;
-			}else {
+			} else {
 				creep.memory.build = true;
 			}
-	
-		}		
-
+		}
 	},
 	/**
 	 *

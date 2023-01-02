@@ -21,22 +21,28 @@ module.exports = function() {
 			return obj;
 		}, {});
 
-		if(validSpawns.length && !roles["harvester"] || roles["harvester"].length < sources.length * 2) {
+		require("role.harvester").create(validSpawns[0])
+
+		
+		if(validSpawns.length && (!roles["harvester"] || roles["harvester"].length < Math.max(sources.length * 2, 5))) {
+			const spawn = validSpawns.pop();
 			Log("Spawning Harvester")
-			const creep = require("role.harvester").create()
-			validSpawns.pop().spawnCreep(creep.body, creep.id, {memory: creep.memory});
+			const creep = require("role.harvester").create(spawn)
+			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
 		}
-
-		if((validSpawns.length && !roles["laborer"] || !roles["laborer"].length)) {
+		
+		if((validSpawns.length && (!roles["laborer"] || roles["laborer"].length < 4))) {
+			const spawn = validSpawns.pop();
 			Log("Spawning Laborer")
-			const creep = require("role.laborer").create()
-			validSpawns.pop().spawnCreep(creep.body, creep.id, {memory: creep.memory});
+			const creep = require("role.laborer").create(spawn)
+			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
 		}
-
-		if(validSpawns.length && !roles["builder"] || roles["builder"].length < 6) {
+		
+		if(validSpawns.length && (!roles["builder"] || roles["builder"].length < room.find(FIND_CONSTRUCTION_SITES).length)) {
+			const spawn = validSpawns.pop();
 			Log("Spawning Builder")
-			const creep = require("role.builder").create()
-			validSpawns.pop().spawnCreep(creep.body, creep.id, {memory: creep.memory});
+			const creep = require("role.builder").create(spawn)
+			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
 		}
 
 	}
