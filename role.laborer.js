@@ -15,20 +15,29 @@ const roleLaborer = {
 	 */
 	run: function (creep) {
 		if (creep.memory.charge) {
-			const target = creep.pos.findClosestByPath(
+			let target = creep.pos.findClosestByPath(
 				creep.room.find(FIND_MY_STRUCTURES, {
 					filter: (structure) =>
-						structure.structureType == STRUCTURE_SPAWN && structure.store.getFreeCapacity(RESOURCE_ENERGY),
+						structure.structureType == STRUCTURE_SPAWN && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
 				})
 			);
-
-			creep.say("🔋");
-
+	
+			target = target || creep.pos.findClosestByPath(
+				creep.room.find(FIND_MY_STRUCTURES, {
+					filter: (structure) =>
+						structure.structureType == STRUCTURE_EXTENSION && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+				})
+			);
+			
+			// console.log(target.store.getFreeCapacity(RESOURCE_ENERGY));	
+			
 			if (target) {
+				creep.say("🔋");
 				if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
 					creep.moveTo(target);
 				}
 			} else {
+				creep.say("⬆️");
 				if (
 					creep.upgradeController(creep.room.controller) ==
 					ERR_NOT_IN_RANGE
@@ -42,6 +51,19 @@ const roleLaborer = {
 			}
 		} else {
 			if (creep.store.getFreeCapacity() > 0) {
+				
+				const dropped = creep.room.find(FIND_DROPPED_RESOURCES, RESOURCE_ENERGY);
+				
+				const drop = creep.pos.findClosestByPath(dropped);
+
+				if(drop) {
+					creep.say("📤")
+					if(creep.pickup(drop) == ERR_NOT_IN_RANGE) {
+						creep.moveTo(drop);
+					}
+					return;
+				}
+
 				const storage = creep.pos.findClosestByPath(
 					creep.room.find(FIND_STRUCTURES, {
 						filter: (structure) => {
@@ -57,12 +79,10 @@ const roleLaborer = {
 				);
 
 				if (storage) {
-					creep.say("⬆️");
+					creep.say("📤");
 
 					if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-						creep.moveTo(storage, {
-							visualizePathStyle: { stroke: "#ffaa00" },
-						});
+						creep.moveTo(storage);
 					}
 					return;
 				}
@@ -75,9 +95,7 @@ const roleLaborer = {
 				creep.say("⛏️");
 
 				if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-					creep.moveTo(source, {
-						visualizePathStyle: { stroke: "#ffaa00" },
-					});
+					creep.moveTo(source);
 				}
 				return;
 			} else {

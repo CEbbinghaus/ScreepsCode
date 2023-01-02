@@ -60,7 +60,7 @@ const roleBuilder = {
 				// console.log(storage)
 
 				if (storage) {
-					creep.say("⬆️");
+					creep.say("📤");
 
 					if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
 						creep.moveTo(storage, {

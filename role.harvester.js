@@ -14,8 +14,36 @@
 		 * @param {Creep} creep
 		 */
 		run: function (creep) {
-			if ((!creep.store.getCapacity()) || creep.store.getFreeCapacity() > 0) {
-				const sources = creep.room.find(FIND_SOURCES_ACTIVE);
+			/**
+			 * @type {StructureContainer[]}
+			 */
+			let targets = creep.room.find(FIND_STRUCTURES, {
+				filter: (structure) => {
+					if(structure.structureType != STRUCTURE_CONTAINER)
+						return;
+					return !structure.pos.lookFor("creep").filter(v => v.id != creep.id).length;
+				},
+			});
+
+			// we have run out of things to charge. Time to upgrade the room
+			const target = creep.pos.findClosestByPath(targets);
+
+			if (!target) {
+				creep.moveTo(0, 0);
+				creep.say("❌");
+				return;
+			}
+
+			if(!creep.pos.isEqualTo(target)) {
+				creep.moveTo(target);
+				return;
+			}
+
+			if(!target.store.getFreeCapacity())
+				return;
+
+			if (((!creep.store.getCapacity())) || creep.store.getFreeCapacity() > 0) {
+				const sources = creep.room.find(FIND_SOURCES);
 
 				const source = creep.pos.findClosestByPath(sources);
 
@@ -29,27 +57,6 @@
 					});
 				}
 			} else {
-				let targets = creep.room.find(FIND_STRUCTURES, {
-					filter: (structure) => {
-						if(structure.structureType != STRUCTURE_CONTAINER)
-							return;
-						return !structure.pos.lookFor("creep").filter(v => v.id != creep.id).length;
-					},
-				});
-
-				// we have run out of things to charge. Time to upgrade the room
-				const target = creep.pos.findClosestByPath(targets);
-
-				if (!target) {
-					creep.moveTo(0, 0);
-					creep.say("❌");
-					return;
-				}
-
-				if(!creep.pos.isEqualTo(target)) {
-					creep.moveTo(target);
-					return;
-				}
 
 				if (
 					target &&
@@ -69,7 +76,8 @@
 		 */
 		create: function (spawn) {
 
-			let spawnEnergy = spawn.store[RESOURCE_ENERGY];
+			// let spawnEnergy = spawn.store[RESOURCE_ENERGY];
+			let spawnEnergy = spawn.room.energyAvailable;
 
 			spawnEnergy -= MOVE_COST;
 
