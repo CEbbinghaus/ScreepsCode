@@ -14,9 +14,6 @@ const roleHarvester = {
 	 * @param {Creep} creep
 	 */
 	run: function (creep) {
-		const {
-			memory: { sourceId },
-		} = creep;
 
 		if (creep.store.getFreeCapacity() > 0) {
 			const sources = creep.room.find(FIND_SOURCES_ACTIVE);

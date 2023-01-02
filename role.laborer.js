@@ -14,7 +14,16 @@ const roleLaborer = {
 	 * @param {Creep} creep 
 	 */
 	run: function (creep) {
-		if(creep.store.energy > 0){
+		
+		if(creep.memory.charge) {
+			const target = creep.pos.findClosestByPath(creep.room.find(FIND_CONSTRUCTION_SITES));
+
+			if (!target) {
+				creep.memory.charge = false;
+				return;
+			}
+
+			creep.say("🔋");
 			if (
 				creep.upgradeController(creep.room.controller) ==
 				ERR_NOT_IN_RANGE
@@ -23,7 +32,30 @@ const roleLaborer = {
 					visualizePathStyle: { stroke: "#ffffff" },
 				});
 			}
-		}
+
+			if(creep.store.energy <= 0) {
+				creep.memory.charge = false;
+			}
+		} else {
+			if(creep.store.getFreeCapacity() > 0) {
+			
+				const source = creep.pos.findClosestByPath(creep.room.find(FIND_SOURCES_ACTIVE));
+				if(!source)
+					return;
+	
+				creep.say("⛏️");
+	
+				if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+					creep.moveTo(source, {
+						visualizePathStyle: { stroke: "#ffaa00" },
+					});
+				}
+				return;
+			}else {
+				creep.memory.charge = true;
+			}
+	
+		}		
 	},
 	create: function () {
 		let body = [WORK, CARRY, MOVE];

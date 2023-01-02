@@ -27,7 +27,7 @@ module.exports = function() {
 			validSpawns.pop().spawnCreep(creep.body, creep.id, {memory: creep.memory});
 		}
 
-		if(false && (validSpawns.length && !roles["laborer"] || roles["laborer"].length < 5)) {
+		if((validSpawns.length && !roles["laborer"] || !roles["laborer"].length)) {
 			Log("Spawning Laborer")
 			const creep = require("role.laborer").create()
 			validSpawns.pop().spawnCreep(creep.body, creep.id, {memory: creep.memory});
