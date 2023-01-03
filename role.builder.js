@@ -8,7 +8,7 @@ const roleBuilder = {
 		if (creep.memory.build) {
 			const task = DoBuildTasks(creep);
 			if (task) {
-				creep.say(task);	
+				creep.say(task);
 			}
 
 			if (creep.store.energy <= 0) {
@@ -23,9 +23,9 @@ const roleBuilder = {
 				});
 
 				if (emptySpawns.length) {
-					if(creep.store.energy){
+					if (creep.store.energy) {
 						creep.memory.build = true;
-					}else {
+					} else {
 						creep.moveTo(32, 32);
 						creep.say("🕰️");
 					}
@@ -33,7 +33,7 @@ const roleBuilder = {
 				}
 
 				if (AcquireEnergy(creep))
-					creep.say("📤");
+					creep.say("🪫");
 				else {
 					creep.say("❗");
 					if (creep.store.energy) {
@@ -52,7 +52,7 @@ const roleBuilder = {
 	 * @returns
 	 */
 	create: function (spawn) {
-		let body = [WORK, CARRY, MOVE];
+		let body = [WORK, CARRY, MOVE, MOVE];
 
 		// const moveAndCarryEnergyReserved =
 		// 	(CARRY_COST + MOVE_COST) * desiredLaborers;
@@ -71,25 +71,72 @@ module.exports = roleBuilder;
 
 /**
  * 
- * @param {AnyStructure} structure 
+ * 
+ * @param {Creep} creep 
+ * @returns 
  */
-function findStructureForRepair(structure) {
-	if(structure.structureType == STRUCTURE_WALL) {
-		if(structure.hits < 1000)
-			return true;
-		else
-			return false;
+function findStructureForRepair(creep) {
+
+	for (const [structureID, assignedCreeps] of Object.entries(Memory.structures)) {
+		if(assignedCreeps.includes(creep.id))
+		{	
+			/** @type {AnyOwnedStructure} */
+			const structure = Game.getObjectById(structureID);
+			if(structure.hitsMax - structure.hits){
+				return structure;
+			} else {
+				assignedCreeps.splice(assignedCreeps.indexOf(creep.id));
+			}
+		}
 	}
 
-	if(structure.structureType == STRUCTURE_RAMPART) {
-		if(structure.hits < 20000)
-			return true;
-		else
-			return false;
-	}
+	/**
+	 *
+	 * @param {Creep} creep
+	 * @param {AnyStructure} structure
+	 */
+	function find(creep, structure) {
+		const hitDeficit = structure.hitsMax - structure.hits;
 
-	return structure.hitsMax - structure.hits;
+		function needsRepair() {
+			if (structure.structureType == STRUCTURE_WALL) {
+				if (structure.hits < 1000) return true;
+				else return false;
+			}
+
+			if (structure.structureType == STRUCTURE_RAMPART) {
+				if (structure.hits < 20000) return true;
+				else return false;
+			}
+
+			return !!hitDeficit;
+		}
+
+		const needs = needsRepair();
+
+		if (!needs) return false;
+
+		const assignedCreeps = Memory.structures[structure.id];
+
+		if (!assignedCreeps) {
+			Memory.structures[structure.id] = [];
+			return true;
+		}
+
+		if (assignedCreeps.includes(creep.id)) return true;
+		
+		// the formula for the below is (deficit / (hitsPerEnergy / 2)) / energyPerWorker
+		const repairCount = Math.max(((hitDeficit / 50) / 50) | 0, 1);
+
+		return repairCount - assignedCreeps.length > 0;
+	}
+	return creep.pos.findClosestByPath(
+		creep.room.find(FIND_STRUCTURES, {
+			filter: find.bind({}, creep),
+		})
+	);
 }
+
 
 /**
  *
@@ -97,15 +144,39 @@ function findStructureForRepair(structure) {
  * @returns {string}
  */
 function DoBuildTasks(creep) {
-	
 	// Repair what's low.
-	const structureToRepair = creep.pos.findClosestByPath(
-		creep.room.find(FIND_STRUCTURES, {
-			filter: findStructureForRepair
-		})
-	);
+	const structureToRepair = findStructureForRepair(creep);
+
+	if (
+		(!structureToRepair && creep.memory.repairing) ||
+		creep.memory.repairing != (structureToRepair && structureToRepair.id)
+	) {
+		const structureId = creep.memory.repairing;
+		/** @type {string[]} */
+		const assignedCreeps = Memory.structures[structureId];
+
+		if (assignedCreeps) {
+			const index = assignedCreeps.indexOf(creep.id);
+
+			if (index !== -1) {
+				assignedCreeps.splice(index, 1);
+			}
+		}
+
+		delete creep.memory.repairing;
+	}
 
 	if (structureToRepair) {
+		creep.memory.repairing = structureToRepair.id;
+
+		/** @type {string[]} */
+		const assignedCreeps =
+			Memory.structures[structureToRepair.id] ||
+			(Memory.structures[structureToRepair.id] = []);
+		if (!assignedCreeps.includes(creep.id)) {
+			Memory.structures[structureToRepair.id].push(creep.id);
+		}
+
 		if (creep.repair(structureToRepair) == ERR_NOT_IN_RANGE) {
 			creep.moveTo(structureToRepair);
 		}
@@ -128,7 +199,10 @@ function DoBuildTasks(creep) {
 	// Reinforce the walls
 	const walls = creep.room.find(FIND_STRUCTURES, {
 		filter: (structure) => {
-			return structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART;
+			return (
+				structure.structureType === STRUCTURE_WALL ||
+				structure.structureType === STRUCTURE_RAMPART
+			);
 		},
 	});
 
@@ -138,9 +212,8 @@ function DoBuildTasks(creep) {
 	);
 
 	if (wall) {
-		if (creep.repair(wall) == ERR_NOT_IN_RANGE)
-			creep.moveTo(wall);
-		return "🧱"
+		if (creep.repair(wall) == ERR_NOT_IN_RANGE) creep.moveTo(wall);
+		return "🧱";
 	}
 
 	return null;

@@ -8,9 +8,10 @@ module.exports = function () {
 	if([...Game.rooms["W8N3"].find(FIND_HOSTILE_CREEPS), ...Game.rooms["W8N3"].find(FIND_HOSTILE_POWER_CREEPS)].length > 0) {
 		Game.rooms["W8N3"].controller.activateSafeMode();
 	}
+	for (const [id, creep] of Object.entries(Game.creeps)) {
 
-	for (let creepKey in Game.creeps) {
-		const creep = Game.creeps[creepKey];
+		if(creep.spawning)
+			continue;
 
 		const role = creep.memory.role;
 

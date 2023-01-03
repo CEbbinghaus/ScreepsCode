@@ -29,10 +29,14 @@ module.exports.GUID = function () {
  * @returns {boolean}
  */
 module.exports.AcquireEnergy = function (creep) {
-
 	// Find any dropped energy. This will decay the fastest so its what we want to focus on
 	const dropped = creep.pos.findClosestByPath(
-		creep.room.find(FIND_DROPPED_RESOURCES, RESOURCE_ENERGY).sort((a, b) => a.amount - b.amount).slice(0, 4)
+		creep.room
+			.find(FIND_DROPPED_RESOURCES, { filter: (resource) => {
+				return resource.resourceType == RESOURCE_ENERGY && resource.amount > 50
+			} })
+			.sort((a, b) => a.amount - b.amount)
+			.slice(0, 4)
 	);
 
 	if (dropped) {
@@ -65,12 +69,11 @@ module.exports.AcquireEnergy = function (creep) {
 	}
 
 	// Lastly if we can work we can also just mine ourselves. Any of the above conditions are preferred but getting energy is better than not
-	if(creep.body.find(v => v.type == WORK)) {
-
+	if (creep.body.find((v) => v.type == WORK)) {
 		const source = creep.pos.findClosestByPath(
 			creep.room.find(FIND_SOURCES_ACTIVE)
 		);
-		
+
 		if (source) {
 			if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
 				creep.moveTo(source);

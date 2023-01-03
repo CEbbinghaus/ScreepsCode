@@ -34,22 +34,6 @@ const roleLaborer = {
 	create: function () {
 		let body = [WORK, CARRY, MOVE];
 
-		// const maximumLaborers = Math.floor(
-		// 	energyAvailable / MINIMUM_LABORER_COST
-		// );
-
-		// if (maximumLaborers <= desiredLaborers) {
-		// }
-
-		// const moveAndCarryEnergyReserved =
-		// 	(CARRY_COST + MOVE_COST) * desiredLaborers;
-
-		// const workPartCount = Math.floor(
-		// 	(energyAvailable - moveAndCarryEnergyReserved) / WORK_COST
-		// );
-
-		// body = [MOVE, CARRY, ...Array.of(workPartCount).fill(WORK)];
-
 		return { memory: { role: this.role }, body, id: `Laborer:${GUID()}` };
 	},
 };

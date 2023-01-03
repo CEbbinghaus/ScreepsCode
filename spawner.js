@@ -34,8 +34,9 @@ module.exports = function() {
 			const creep = require("role.harvester").create(spawn)
 			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
 		}
+
 		
-		if(validSpawns.length && (!roles["builder"] || roles["builder"].length < (room.find(FIND_CONSTRUCTION_SITES).length || 4))) {
+		if(validSpawns.length && (!roles["builder"] || roles["builder"].length < Math.max(room.find(FIND_CONSTRUCTION_SITES).length, 4))) {
 			const spawn = validSpawns.pop();
 			Log("Spawning Builder")
 			const creep = require("role.builder").create(spawn)
