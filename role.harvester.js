@@ -29,8 +29,8 @@
 			let target = creep.pos.findClosestByPath(targets);
 
 			if (!target) {
-				console.log("NO target could be found")
 				// No place to drop. Oh well
+				// console.log("NO target could be found")
 			} else {
 				if(!creep.pos.isEqualTo(target)) {
 					creep.moveTo(target);

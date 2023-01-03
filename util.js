@@ -32,7 +32,7 @@ module.exports.AcquireEnergy = function (creep) {
 
 	// Find any dropped energy. This will decay the fastest so its what we want to focus on
 	const dropped = creep.pos.findClosestByPath(
-		creep.room.find(FIND_DROPPED_RESOURCES, RESOURCE_ENERGY)
+		creep.room.find(FIND_DROPPED_RESOURCES, RESOURCE_ENERGY).sort((a, b) => a.amount - b.amount).slice(0, 4)
 	);
 
 	if (dropped) {

@@ -5,7 +5,7 @@ const {
 	WORK_COST,
 } = require("./constants");
 const { Log } = require("./logging");
-const { GUID } = require("./util");
+const { GUID, AcquireEnergy } = require("./util");
 
 const roleLaborer = {
 	role: "laborer",
@@ -15,88 +15,16 @@ const roleLaborer = {
 	 */
 	run: function (creep) {
 		if (creep.memory.charge) {
-			let target = creep.pos.findClosestByPath(
-				creep.room.find(FIND_MY_STRUCTURES, {
-					filter: (structure) =>
-						structure.structureType == STRUCTURE_SPAWN && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-				})
-			);
-	
-			target = target || creep.pos.findClosestByPath(
-				creep.room.find(FIND_MY_STRUCTURES, {
-					filter: (structure) =>
-						structure.structureType == STRUCTURE_EXTENSION && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-				})
-			);
-			
-			// console.log(target.store.getFreeCapacity(RESOURCE_ENERGY));	
-			
-			if (target) {
-				creep.say("🔋");
-				if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-					creep.moveTo(target);
-				}
-			} else {
-				creep.say("⬆️");
-				if (
-					creep.upgradeController(creep.room.controller) ==
-					ERR_NOT_IN_RANGE
-				) {
-					creep.moveTo(creep.room.controller);
-				}
-			}
+			const task = DoLaborerTasks(creep);
+			creep.say(task);
 
 			if (creep.store.energy <= 0) {
 				creep.memory.charge = false;
 			}
 		} else {
 			if (creep.store.getFreeCapacity() > 0) {
-				
-				const dropped = creep.room.find(FIND_DROPPED_RESOURCES, RESOURCE_ENERGY);
-				
-				const drop = creep.pos.findClosestByPath(dropped);
-
-				if(drop) {
-					creep.say("📤")
-					if(creep.pickup(drop) == ERR_NOT_IN_RANGE) {
-						creep.moveTo(drop);
-					}
-					return;
-				}
-
-				const storage = creep.pos.findClosestByPath(
-					creep.room.find(FIND_STRUCTURES, {
-						filter: (structure) => {
-							if (
-								structure.structureType !=
-									STRUCTURE_CONTAINER &&
-								structure.structureType != STRUCTURE_STORAGE
-							)
-								return false;
-							return structure.store[RESOURCE_ENERGY] > 0;
-						},
-					})
-				);
-
-				if (storage) {
-					creep.say("📤");
-
-					if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-						creep.moveTo(storage);
-					}
-					return;
-				}
-
-				const source = creep.pos.findClosestByPath(
-					creep.room.find(FIND_SOURCES_ACTIVE)
-				);
-				if (!source) return;
-
-				creep.say("⛏️");
-
-				if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-					creep.moveTo(source);
-				}
+				if (AcquireEnergy(creep)) creep.say("📤");
+				else creep.say("❗");
 				return;
 			} else {
 				creep.memory.charge = true;
@@ -127,3 +55,76 @@ const roleLaborer = {
 };
 
 module.exports = roleLaborer;
+
+/**
+ *
+ * @param {Creep} creep
+ * @returns {AnyOwnedStructure[]}
+ */
+function FindSpawnsWithoutEnergy(creep) {
+	return creep.pos.findClosestByPath(
+		creep.room.find(FIND_MY_STRUCTURES, {
+			filter: (structure) =>
+				structure.structureType == STRUCTURE_SPAWN &&
+				structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+		})
+	);
+}
+
+/**
+ *
+ * @param {Creep} creep
+ * @returns {AnyOwnedStructure[]}
+ */
+function FindExtensionWithoutEnergy(creep) {
+	return creep.pos.findClosestByPath(
+		creep.room.find(FIND_MY_STRUCTURES, {
+			filter: (structure) =>
+				structure.structureType == STRUCTURE_EXTENSION &&
+				structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+		})
+	);
+}
+
+/**
+ *
+ * @param {Creep} creep
+ * @returns {AnyOwnedStructure[]}
+ */
+function FindTowerWithoutEnergy(creep) {
+	return creep.pos.findClosestByPath(
+		creep.room.find(FIND_MY_STRUCTURES, {
+			filter: (structure) =>
+				structure.structureType == STRUCTURE_TOWER &&
+				structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+		})
+	);
+}
+
+/**
+ *
+ * @param {Creep} creep
+ * @returns {string}
+ */
+function DoLaborerTasks(creep) {
+	// Charge any spawns or extensions
+	let target = FindSpawnsWithoutEnergy(creep);
+
+	target = target || FindExtensionWithoutEnergy(creep);
+
+	target = target || FindTowerWithoutEnergy(creep);
+
+	if (target) {
+		if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+			creep.moveTo(target);
+		}
+		return "🔋";
+	}
+
+	// Upgrade Controller
+	if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+		creep.moveTo(creep.room.controller);
+	}
+
+	return "⬆️";
+}

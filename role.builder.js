@@ -6,35 +6,9 @@ const roleBuilder = {
 	/** @param {Creep} creep **/
 	run: function (creep) {
 		if (creep.memory.build) {
-			const target = creep.pos.findClosestByPath(
-				creep.room.find(FIND_CONSTRUCTION_SITES)
-			);
-
-			if (!target) {
-				const walls = creep.room.find(FIND_STRUCTURES, {
-					filter: (structure) => {
-						return structure.structureType === STRUCTURE_WALL;
-					}
-				});
-
-				// const wall = walls.sort((a, b) => a.hits - b.hits).slice(0, 10);
-				const wall = creep.pos.findClosestByPath(walls.sort((a, b) => a.hits - b.hits).slice(0, 10));
-
-				if(wall) {
-					if(creep.repair(wall) == ERR_NOT_IN_RANGE)
-						creep.moveTo(wall);
-					
-				}else {
-					creep.memory.build = false;
-					return;
-				}
-			}
-
-			creep.say("🚧");
-			if (target && creep.build(target) == ERR_NOT_IN_RANGE) {
-				creep.moveTo(target, {
-					visualizePathStyle: { stroke: "#ffffff" },
-				});
+			const task = DoBuildTasks(creep);
+			if (task) {
+				creep.say(task);	
 			}
 
 			if (creep.store.energy <= 0) {
@@ -42,10 +16,30 @@ const roleBuilder = {
 			}
 		} else {
 			if (creep.store.getFreeCapacity() > 0) {
-				if(AcquireEnergy(creep))
+				const emptySpawns = creep.room.find(FIND_MY_STRUCTURES, {
+					filter: (structure) =>
+						structure.structureType == STRUCTURE_SPAWN &&
+						structure.store[RESOURCE_ENERGY] < 200,
+				});
+
+				if (emptySpawns.length) {
+					if(creep.store.energy){
+						creep.memory.build = true;
+					}else {
+						creep.moveTo(32, 32);
+						creep.say("🕰️");
+					}
+					return;
+				}
+
+				if (AcquireEnergy(creep))
 					creep.say("📤");
-				else
+				else {
 					creep.say("❗");
+					if (creep.store.energy) {
+						creep.memory.build = true;
+					}
+				}
 				return;
 			} else {
 				creep.memory.build = true;
@@ -74,3 +68,80 @@ const roleBuilder = {
 };
 
 module.exports = roleBuilder;
+
+/**
+ * 
+ * @param {AnyStructure} structure 
+ */
+function findStructureForRepair(structure) {
+	if(structure.structureType == STRUCTURE_WALL) {
+		if(structure.hits < 1000)
+			return true;
+		else
+			return false;
+	}
+
+	if(structure.structureType == STRUCTURE_RAMPART) {
+		if(structure.hits < 20000)
+			return true;
+		else
+			return false;
+	}
+
+	return structure.hitsMax - structure.hits;
+}
+
+/**
+ *
+ * @param {Creep} creep
+ * @returns {string}
+ */
+function DoBuildTasks(creep) {
+	
+	// Repair what's low.
+	const structureToRepair = creep.pos.findClosestByPath(
+		creep.room.find(FIND_STRUCTURES, {
+			filter: findStructureForRepair
+		})
+	);
+
+	if (structureToRepair) {
+		if (creep.repair(structureToRepair) == ERR_NOT_IN_RANGE) {
+			creep.moveTo(structureToRepair);
+		}
+		return "🛠️";
+	}
+
+	// Build what needs to be built
+	const construction = creep.pos.findClosestByPath(
+		creep.room.find(FIND_CONSTRUCTION_SITES)
+	);
+
+	if (construction) {
+		if (creep.build(construction) == ERR_NOT_IN_RANGE) {
+			creep.moveTo(construction);
+		}
+
+		return "🚧";
+	}
+
+	// Reinforce the walls
+	const walls = creep.room.find(FIND_STRUCTURES, {
+		filter: (structure) => {
+			return structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART;
+		},
+	});
+
+	// const wall = walls.sort((a, b) => a.hits - b.hits).slice(0, 10);
+	const wall = creep.pos.findClosestByPath(
+		walls.sort((a, b) => a.hits - b.hits).slice(0, 20)
+	);
+
+	if (wall) {
+		if (creep.repair(wall) == ERR_NOT_IN_RANGE)
+			creep.moveTo(wall);
+		return "🧱"
+	}
+
+	return null;
+}
