@@ -1,4 +1,4 @@
-const { GUID } = require("./util");
+const { GUID, AcquireEnergy } = require("./util");
 
 const roleBuilder = {
 	role: "builder",
@@ -42,46 +42,10 @@ const roleBuilder = {
 			}
 		} else {
 			if (creep.store.getFreeCapacity() > 0) {
-
-				const storage = creep.pos.findClosestByPath(
-					creep.room.find(FIND_STRUCTURES, {
-						filter: (structure) => {
-							if (
-								structure.structureType !=
-									STRUCTURE_CONTAINER &&
-								structure.structureType != STRUCTURE_STORAGE
-							)
-								return false;
-							return structure.store[RESOURCE_ENERGY] > 0;
-						},
-					})
-				);
-
-				// console.log(storage)
-
-				if (storage) {
+				if(AcquireEnergy(creep))
 					creep.say("📤");
-
-					if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-						creep.moveTo(storage, {
-							visualizePathStyle: { stroke: "#ffaa00" },
-						});
-					}
-					return;
-				}
-
-				const source = creep.pos.findClosestByPath(
-					creep.room.find(FIND_SOURCES_ACTIVE)
-				);
-				if (!source) return;
-
-				creep.say("⛏️");
-
-				if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-					creep.moveTo(source, {
-						visualizePathStyle: { stroke: "#ffaa00" },
-					});
-				}
+				else
+					creep.say("❗");
 				return;
 			} else {
 				creep.memory.build = true;

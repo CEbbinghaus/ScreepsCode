@@ -26,20 +26,19 @@
 			});
 
 			// we have run out of things to charge. Time to upgrade the room
-			const target = creep.pos.findClosestByPath(targets);
+			let target = creep.pos.findClosestByPath(targets);
 
 			if (!target) {
-				creep.moveTo(0, 0);
-				creep.say("❌");
-				return;
+				console.log("NO target could be found")
+				// No place to drop. Oh well
+			} else {
+				if(!creep.pos.isEqualTo(target)) {
+					creep.moveTo(target);
+					return;
+				}	
 			}
-
-			if(!creep.pos.isEqualTo(target)) {
-				creep.moveTo(target);
-				return;
-			}
-
-			if(!target.store.getFreeCapacity())
+		
+			if(target && !target.store.getFreeCapacity())
 				return;
 
 			if (((!creep.store.getCapacity())) || creep.store.getFreeCapacity() > 0) {
