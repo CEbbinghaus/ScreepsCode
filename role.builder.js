@@ -97,6 +97,7 @@ function findStructureForRepair(creep) {
 	 */
 	function find(creep, structure) {
 		const hitDeficit = structure.hitsMax - structure.hits;
+		const hitDeficitPercentage = (structure.hits / structure.hitsMax) * 100;
 
 		function needsRepair() {
 			if (structure.structureType == STRUCTURE_WALL) {
@@ -109,7 +110,7 @@ function findStructureForRepair(creep) {
 				else return false;
 			}
 
-			return !!hitDeficit;
+			return hitDeficitPercentage < 95;
 		}
 
 		const needs = needsRepair();
