@@ -1,23 +1,22 @@
-	const {
+	import {
 		MINIMUM_LABORER_COST,
 		CARRY_COST,
 		MOVE_COST,
 		WORK_COST,
-	} = require("./constants");
-	const { Log } = require("./logging");
-	const { GUID } = require("./util");
+	} from "./constants";
+	import { Log } from "./logging";
+	import { GUID } from "./util";
 
-	const roleHarvester = {
+export default {
 		role: "harvester",
 		/**
 		 *
 		 * @param {Creep} creep
 		 */
-		run: function (creep) {
-			/**
-			 * @type {StructureContainer[]}
-			 */
-			let targets = creep.room.find(FIND_STRUCTURES, {
+		//@ts-ignore
+		run: function (creep: Creep) {
+
+			let targets: StructureContainer[] = creep.room.find(FIND_STRUCTURES, {
 				filter: (structure) => {
 					if(structure.structureType != STRUCTURE_CONTAINER)
 						return;
@@ -73,7 +72,7 @@
 		 * @param {StructureSpawn} spawn
 		 * @returns	
 		 */
-		create: function (spawn) {
+		create: function (spawn: StructureSpawn) {
 
 			// let spawnEnergy = spawn.store[RESOURCE_ENERGY];
 			let spawnEnergy = spawn.room.energyAvailable;
@@ -97,5 +96,3 @@
 			return { memory: { role: this.role }, body, id: `Harvester:${GUID()}` };
 		},
 	};
-
-	module.exports = roleHarvester;

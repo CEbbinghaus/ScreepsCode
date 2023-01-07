@@ -1,6 +1,6 @@
-const roleUpgrader = {
+export default {
 	/** @param {Creep} creep **/
-	run: function (creep) {
+	run: function (creep: Creep) {
 
 		if (creep.memory.upgrading && creep.store[RESOURCE_ENERGY] == 0) {
 			creep.memory.upgrading = false;
@@ -14,10 +14,10 @@ const roleUpgrader = {
 
 		if (creep.memory.upgrading) {
 			if (
-				creep.upgradeController(creep.room.controller) ==
+				creep.upgradeController(creep.room.controller as StructureController) ==
 				ERR_NOT_IN_RANGE
 			) {
-				creep.moveTo(creep.room.controller, {
+				creep.moveTo(creep.room.controller as StructureController, {
 					visualizePathStyle: { stroke: "#ffffff" },
 				});
 			}
@@ -31,5 +31,3 @@ const roleUpgrader = {
 		}
 	},
 };
-
-module.exports = roleUpgrader;

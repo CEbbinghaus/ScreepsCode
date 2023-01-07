@@ -1,19 +1,12 @@
-const LogLevel = {
-	None: 0,
-	[0]: "None",
-	Debug: 1,
-	[1]: "Debug",
-	Info: 2,
-	[2]: "Info",
-	Warn: 3,
-	[3]: "Warn",
-	Error: 4,
-	[4]: "Error",
-	Critical: 5,
-	[5]: "Critical",
-};
 
-module.exports.LogLevel = LogLevel;
+export enum LogLevel {
+	None = 0,
+	Debug,
+	Info,
+	Warn,
+	Error,
+	Critical
+}
 
 const DefaultLogLevel = LogLevel.Info;
 const CurrentLogLevel = LogLevel.Info;
@@ -24,7 +17,7 @@ const CurrentLogLevel = LogLevel.Info;
  * @param {any} levelOrData
  * @param  {...any} data
  */
-module.exports.Log = function (message, levelOrData, ...data) {
+export function Log(message: string, levelOrData?: LogLevel | any, ...data: any[]) {
 	
 	if(typeof(levelOrData) === "number")
 		levelOrData = {LogLevel: levelOrData};

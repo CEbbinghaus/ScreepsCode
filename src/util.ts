@@ -1,10 +1,7 @@
-module.exports.GUID = function () {
+
+export function GUID () {
 	var d = new Date().getTime(); //Timestamp
-	var d2 =
-		(typeof performance !== "undefined" &&
-			performance.now &&
-			performance.now() * 1000) ||
-		0; //Time in microseconds since page-load or 0 if unsupported
+	var d2 = 0; //Time in microseconds since page-load or 0 if unsupported
 	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
 		/[xy]/g,
 		function (c) {
@@ -28,7 +25,7 @@ module.exports.GUID = function () {
  * @param {Creep} creep
  * @returns {boolean}
  */
-module.exports.AcquireEnergy = function (creep) {
+export function AcquireEnergy(creep: Creep) {
 	// Find any dropped energy. This will decay the fastest so its what we want to focus on
 	const dropped = creep.pos.findClosestByPath(
 		creep.room

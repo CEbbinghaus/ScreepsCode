@@ -1,19 +1,19 @@
-const {
+import {
 	MINIMUM_LABORER_COST,
 	CARRY_COST,
 	MOVE_COST,
 	WORK_COST,
-} = require("./constants");
-const { Log } = require("./logging");
-const { GUID, AcquireEnergy } = require("./util");
+} from "./constants";
+import { Log } from "./logging";
+import { GUID, AcquireEnergy } from "./util";
 
-const roleLaborer = {
+export default {
 	role: "laborer",
 	/**
 	 *
 	 * @param {Creep} creep
 	 */
-	run: function (creep) {
+	run: function (creep: Creep) {
 		if (creep.memory.charge) {
 			const task = DoLaborerTasks(creep);
 			creep.say(task);
@@ -38,14 +38,12 @@ const roleLaborer = {
 	},
 };
 
-module.exports = roleLaborer;
-
 /**
  *
  * @param {Creep} creep
  * @returns {AnyOwnedStructure[]}
  */
-function FindSpawnsWithoutEnergy(creep) {
+function FindSpawnsWithoutEnergy(creep: Creep) {
 	return creep.pos.findClosestByPath(
 		creep.room.find(FIND_MY_STRUCTURES, {
 			filter: (structure) =>
@@ -60,7 +58,7 @@ function FindSpawnsWithoutEnergy(creep) {
  * @param {Creep} creep
  * @returns {AnyOwnedStructure[]}
  */
-function FindExtensionWithoutEnergy(creep) {
+function FindExtensionWithoutEnergy(creep: Creep) {
 	return creep.pos.findClosestByPath(
 		creep.room.find(FIND_MY_STRUCTURES, {
 			filter: (structure) =>
@@ -75,7 +73,7 @@ function FindExtensionWithoutEnergy(creep) {
  * @param {Creep} creep
  * @returns {AnyOwnedStructure[]}
  */
-function FindTowerWithoutEnergy(creep) {
+function FindTowerWithoutEnergy(creep: Creep) {
 	return creep.pos.findClosestByPath(
 		creep.room.find(FIND_MY_STRUCTURES, {
 			filter: (structure) =>
@@ -90,7 +88,7 @@ function FindTowerWithoutEnergy(creep) {
  * @param {Creep} creep
  * @returns {string}
  */
-function DoLaborerTasks(creep) {
+function DoLaborerTasks(creep: Creep) {
 	// Charge any spawns or extensions
 	let target = FindSpawnsWithoutEnergy(creep);
 
@@ -106,8 +104,8 @@ function DoLaborerTasks(creep) {
 	}
 
 	// Upgrade Controller
-	if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-		creep.moveTo(creep.room.controller);
+	if (creep.upgradeController(creep.room.controller as StructureController) == ERR_NOT_IN_RANGE) {
+		creep.moveTo(creep.room.controller as StructureController);
 	}
 
 	return "⬆️";

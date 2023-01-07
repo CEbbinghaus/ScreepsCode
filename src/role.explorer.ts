@@ -1,10 +1,10 @@
-const { GUID, AcquireEnergy } = require("./util");
+import { GUID, AcquireEnergy } from "./util";
 
-const roleBuilder = {
+export default {
 	role: "explorer",
 
 	/** @param {Creep} creep **/
-	run: function (creep) {
+	run: function (creep: Creep) {
 		const state = creep.memory.exploreState || "explore";
 
 		switch (state) {
@@ -21,26 +21,24 @@ const roleBuilder = {
 	 * @param {StructureSpawn} spawn
 	 * @returns
 	 */
-	create: function (spawn) {
+	create: function (spawn: StructureSpawn) {
 		let body = [WORK, CARRY, MOVE, MOVE, MOVE];
 
 		return { memory: { role: this.role }, body, id: `Explorer:${GUID()}` };
 	},
 };
 
-module.exports = roleBuilder;
+/**
+ *
+ * @param {Creep} creep
+ */
+function Explore(creep: Creep) {}
 
 /**
  *
  * @param {Creep} creep
  */
-function Explore(creep) {}
-
-/**
- *
- * @param {Creep} creep
- */
- function Settle(creep) {
+ function Settle(creep: Creep) {
 	// if()
 
 	AcquireEnergy(creep)

@@ -1,10 +1,10 @@
 const { GUID, AcquireEnergy } = require("./util");
 
-const roleBuilder = {
+export default {
 	role: "builder",
 
 	/** @param {Creep} creep **/
-	run: function (creep) {
+	run: function (creep: Creep) {
 		if (creep.memory.build) {
 			const task = DoBuildTasks(creep);
 			if (task) {
@@ -51,7 +51,7 @@ const roleBuilder = {
 	 * @param {StructureSpawn} spawn
 	 * @returns
 	 */
-	create: function (spawn) {
+	create: function (spawn: StructureSpawn) {
 		let body = [WORK, CARRY, MOVE, MOVE];
 
 		// const moveAndCarryEnergyReserved =
@@ -67,21 +67,24 @@ const roleBuilder = {
 	},
 };
 
-module.exports = roleBuilder;
-
 /**
  * 
  * 
  * @param {Creep} creep 
  * @returns 
  */
-function findStructureForRepair(creep) {
+function findStructureForRepair(creep: Creep) {
 
 	for (const [structureID, assignedCreeps] of Object.entries(Memory.structures)) {
 		if(assignedCreeps.includes(creep.id))
 		{	
-			/** @type {AnyOwnedStructure} */
-			const structure = Game.getObjectById(structureID);
+			const structure = Game.getObjectById(structureID as Id<AnyOwnedStructure>);
+
+			if(!structure) {
+				delete Memory.structures[structureID];
+				continue;
+			}
+
 			if(structure.hitsMax - structure.hits){
 				return structure;
 			} else {
@@ -95,7 +98,7 @@ function findStructureForRepair(creep) {
 	 * @param {Creep} creep
 	 * @param {AnyStructure} structure
 	 */
-	function find(creep, structure) {
+	function find(creep: Creep, structure: AnyStructure) {
 		const hitDeficit = structure.hitsMax - structure.hits;
 		const hitDeficitPercentage = (structure.hits / structure.hitsMax) * 100;
 
@@ -144,7 +147,7 @@ function findStructureForRepair(creep) {
  * @param {Creep} creep
  * @returns {string}
  */
-function DoBuildTasks(creep) {
+function DoBuildTasks(creep: Creep) {
 	// Repair what's low.
 	const structureToRepair = findStructureForRepair(creep);
 
@@ -154,7 +157,7 @@ function DoBuildTasks(creep) {
 	) {
 		const structureId = creep.memory.repairing;
 		/** @type {string[]} */
-		const assignedCreeps = Memory.structures[structureId];
+		const assignedCreeps = Memory.structures[structureId as string];
 
 		if (assignedCreeps) {
 			const index = assignedCreeps.indexOf(creep.id);

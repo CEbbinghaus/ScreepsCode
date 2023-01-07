@@ -1,7 +1,7 @@
-const { Log, LogLevel } = require("./logging")
+import { Log, LogLevel } from "./logging";
 
 
-module.exports = function() {
+export default function() {
 
 	for (const [id, room] of Object.entries(Game.rooms)) {
 
@@ -16,20 +16,20 @@ module.exports = function() {
 			continue;
 		}
 		
-		const roles = creeps.reduce(function(obj, value) {
+		const roles = creeps.reduce(function(obj: Record<string, Creep[]>, value) {
 			(obj[value.memory.role] = obj[value.memory.role] || []).push(value);
 			return obj;
 		}, {});
 
 		if((validSpawns.length && (!roles["laborer"] || roles["laborer"].length < 4))) {
-			const spawn = validSpawns.pop();
+			const spawn = validSpawns.pop() as StructureSpawn;
 			Log("Spawning Laborer")
 			const creep = require("role.laborer").create(spawn)
 			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
 		}
 		
 		if(validSpawns.length && (!roles["harvester"] || roles["harvester"].length < Math.max(sources.length * 2, 5))) {
-			const spawn = validSpawns.pop();
+			const spawn = validSpawns.pop() as StructureSpawn;
 			Log("Spawning Harvester")
 			const creep = require("role.harvester").create(spawn)
 			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
@@ -37,7 +37,7 @@ module.exports = function() {
 
 		
 		if(validSpawns.length && (!roles["builder"] || roles["builder"].length < Math.max(room.find(FIND_CONSTRUCTION_SITES).length, 4))) {
-			const spawn = validSpawns.pop();
+			const spawn = validSpawns.pop() as StructureSpawn;
 			Log("Spawning Builder")
 			const creep = require("role.builder").create(spawn)
 			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
