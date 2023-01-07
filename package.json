@@ -1,17 +1,38 @@
 {
-  "name": "ScreepsCode",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/screeps": "^3.3.0",
-    "lipe": "^0.3.0",
-    "typescript": "^4.9.4"
-  }
+	"name": "pooh",
+	"version": "1.0.0",
+	"description": "",
+	"main": "src/index.js",
+	"scripts": {
+		"build": "rollup -c"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@rollup/plugin-commonjs": "^20.0.0",
+		"@rollup/plugin-dynamic-import-vars": "^2.0.2",
+		"@rollup/plugin-node-resolve": "^13.3.0",
+		"@types/node": "^13.13.52",
+		"@types/screeps": "^3.3.0",
+		"@typescript-eslint/eslint-plugin": "^4.33.0",
+		"@typescript-eslint/parser": "^4.33.0",
+		"@typescript-eslint/typescript-estree": "^4.33.0",
+		"chai": "^4.3.7",
+		"eslint": "^7.32.0",
+		"eslint-import-resolver-typescript": "^2.7.1",
+		"eslint-plugin-import": "^2.26.0",
+		"lodash": "^3.10.1",
+		"rollup": "^3.9.1",
+		"rollup-plugin-clear": "^2.0.7",
+		"rollup-plugin-screeps": "^1.0.1",
+		"rollup-plugin-typescript2": "^0.34.1",
+		"ts-node": "^10.9.1",
+		"tsconfig-paths": "^3.14.1",
+		"tslib": "^2.4.1",
+		"typescript": "^4.9.4"
+	},
+	"dependencies": {
+		"lipe": "^0.3.0"
+	}
 }
