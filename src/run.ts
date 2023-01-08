@@ -1,5 +1,10 @@
 import { GUID } from "./util";
 import { Log, LogLevel } from "./logging";
+import roleBuilder from "role.builder";
+import roleExplorer from "role.explorer";
+import roleHarvester from "role.harvester";
+import roleLaborer from "role.laborer";
+import roleUpgrader from "role.upgrader";
 
 export default async function () {
 
@@ -36,11 +41,31 @@ export default async function () {
 		if(!role)
 			return Log(`Creep "${creep.id}" has an Invalid Role`)
 
-		const roleObject = ((await import(`./role.${role}.js`))).default;
+		// const roleObject = ((await import(`./role.${role}.js`))).default;
+		const roleObject = require(`./role.${role}.js`).default;
 
-		if(!roleObject)
-			return Log(`Creep "${creep.id}"'s role ${role} doesn't exist`);
+		switch(role) {
+			case "builder":
+				roleBuilder.run(creep);
+				break;
+			case "explorer":
+				roleExplorer.run(creep);
+				break;
+			case "harvester":
+				roleHarvester.run(creep);
+				break;
+			case "laborer":
+				roleLaborer.run(creep);
+				break;
+			case "upgrader":
+				roleUpgrader.run(creep);
+				break;
+			default:
+				Log(`Creep "${creep.id}"'s role ${role} doesn't exist`, LogLevel.Error);
+		}
 
-		roleObject.run(creep);
+		// if(!roleObject)
+
+		// roleObject.run(creep);
 	}
 };

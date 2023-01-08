@@ -1,2 +1,8 @@
 node_modules
 *.log
+
+# build directory
+dist
+
+!*.screeps.yaml
+.screeps.yaml

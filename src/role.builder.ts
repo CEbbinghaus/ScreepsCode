@@ -1,4 +1,4 @@
-const { GUID, AcquireEnergy } = require("./util");
+import { GUID, AcquireEnergy } from "./util";
 
 export default {
 	role: "builder",

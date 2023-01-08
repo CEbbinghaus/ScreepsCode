@@ -4,6 +4,6 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 
-[**.{js,json}]
+[**.{mjs,ts,js,json}]
 tab_width = 4
 indent_style = tab

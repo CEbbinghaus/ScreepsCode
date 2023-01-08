@@ -9,7 +9,7 @@ export enum LogLevel {
 }
 
 const DefaultLogLevel = LogLevel.Info;
-const CurrentLogLevel = LogLevel.Info;
+const CurrentLogLevel = LogLevel.None;
 
 /**
  * Lops a message with values
