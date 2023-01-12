@@ -6,7 +6,6 @@ export default {
 	/** @param {Creep} creep **/
 	run: function (creep: Creep) {
 		const state = creep.memory.exploreState || "explore";
-
 		switch (state) {
 			case "settle":
 				Settle(creep);

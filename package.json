@@ -4,23 +4,27 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "gulp build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/gulp": "^4.0.10",
+    "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.18",
     "@types/screeps": "^3.3.0",
     "@types/through2": "^2.0.38",
     "@types/vinyl-file": "^3.0.2",
     "del": "^7.0.0",
+    "fancy-log": "^2.0.0",
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.11.0",
     "screeps-api": "^1.16.0",
+    "source-map": "^0.7.4",
     "through2": "^4.0.2",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "yamljs": "^0.3.0"
   },
   "dependencies": {
     "lipe": "^0.3.1"

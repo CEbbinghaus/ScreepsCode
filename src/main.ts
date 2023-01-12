@@ -8,20 +8,19 @@ let TICK = 0;
 EnsureSetup();
 
 module.exports.loop = function () {
-	logger.Debug(`Local Tick: ${TICK++}, Game Tick: ${Game.time}`);
-
-	if(!(TICK % 1000)) {
-		Clean();
-	}
-
 	try {
+		logger.Debug("Local Tick: {localTick}, Game Tick: {gameTick}, CPU Usage: {cpuUsage}", {localTick: TICK++, gameTick: Game.time, cpuUsage: Game.cpu.getUsed()});
+
+		if(!(TICK % 1000)) {
+			Clean();
+		}
+
+
 		spawn();
-	} catch (ex: any) {
-		logger.Critical(`${ex?.name}: ${ex?.message}\n${ex?.stack}`)
-	}
-	
-	try {
+		
 		run();
+
+
 	} catch (ex: any) {
 		logger.Critical(`${ex?.name}: ${ex?.message}\n${ex?.stack}`)
 	}

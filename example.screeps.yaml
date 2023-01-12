@@ -1,6 +1,6 @@
-
+branching: false
 servers:
-  world:
+  main:
     host: screeps.com
     secure: true
     port: 443
