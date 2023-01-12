@@ -46,7 +46,7 @@ export function AcquireEnergy(creep: Creep) {
 	// Find any containers or storage that contain energy. That way we can retrieve more energy faster
 
 	const storage = creep.pos.findClosestByPath(
-		creep.room.find(FIND_STRUCTURES, {
+		(creep.room.find(FIND_STRUCTURES, {
 			filter: (structure) => {
 				if (
 					structure.structureType != STRUCTURE_CONTAINER &&
@@ -55,7 +55,9 @@ export function AcquireEnergy(creep: Creep) {
 					return false;
 				return structure.store[RESOURCE_ENERGY] > 0;
 			},
-		})
+		}) as AnyStoreStructure[])
+		.sort((a, b) => b.store[RESOURCE_ENERGY] - a.store[RESOURCE_ENERGY])
+		.slice(0, 3)
 	);
 
 	if (storage) {
