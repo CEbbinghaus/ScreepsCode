@@ -1,5 +1,5 @@
 import gulp from "gulp";
-import ts from "gulp-typescript";
+import through from 'through2'
 import { ScreepsAPI } from 'screeps-api'
 import { deleteSync } from "del";
 import path from "path";
@@ -22,17 +22,32 @@ export function clean() {
 };
 
 export const build = series(clean, function () {
-	return src("src/**/*.ts")
+	return src("src/main.ts")
 		.pipe(
 			esbuild({
 				bundle: true,
 				format: "cjs",
 				target: "node10",
 				minify: false,
-				sourcemap: "inline",
+				sourcemap: "linked",
 				platform: "node"
 			})
 		)
+		.pipe(through.obj((/** @type {import("vinyl-file").VinylFile} */file, enc, cb) => {
+			if(`${file.path}`.endsWith(".map")) {
+				const modifiedFile = file.clone();
+
+				modifiedFile.path += ".js";
+				let json = JSON.parse(String( file.contents ));
+
+				delete json.sourcesContent;
+
+				modifiedFile.contents = Buffer.from( JSON.stringify(json) );
+
+				cb(null, modifiedFile);
+			} else
+				cb(null, file)
+		}))
 		.pipe(gulp.dest(dest));
 });
 
