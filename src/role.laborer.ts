@@ -31,7 +31,7 @@ export default {
 			}
 		}
 	},
-	create: function () {
+	create: function (spawn: StructureSpawn) {
 		let body = [WORK, CARRY, MOVE];
 
 		return { memory: { role: this.role }, body, id: `Laborer:${GUID()}` };

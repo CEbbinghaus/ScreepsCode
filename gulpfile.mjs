@@ -5,43 +5,35 @@ import { deleteSync } from "del";
 import path from "path";
 import { createGulpEsbuild } from 'gulp-esbuild';
 import { readdirSync, readFileSync } from "fs";
-const { src, series, parallel } = gulp;
+import { Console } from "console";
+import { deleteAsync } from "del";
+const { src, series, parallel, task } = gulp;
 
-const tsconfig = ts.createProject("tsconfig.json");
-const esbuild = createGulpEsbuild();
+const esbuild = createGulpEsbuild({
+	pipe: true
+});
 
-const api = new ScreepsAPI({
-	// token: 'Your Token from Account/Auth Tokens'
-	email: "",
-	password: "",
-	protocol: 'http',
-	hostname: 'screeps.cerver.au',
-	port: 21025,
-	path: '/' // Do no include '/api', it will be added automatically
-  });
-
+const api = await ScreepsAPI.fromConfig("private");
 
 const dest = "dist";
 
-export const clean = function (cb) {
-	deleteSync(dest);
-	cb();
+export function clean() {
+	return deleteAsync(dest);
 };
 
-export const build = series(clean, function (cb) {
-	src("src/**/*.ts")
-		// .pipe(
-		// 	tsconfig({
-		// 		noImplicitAny: true,
-		// 	})
-		// )
+export const build = series(clean, function () {
+	return src("src/**/*.ts")
 		.pipe(
 			esbuild({
-				bundle: true
+				bundle: true,
+				format: "cjs",
+				target: "node10",
+				minify: false,
+				sourcemap: "inline",
+				platform: "node"
 			})
 		)
 		.pipe(gulp.dest(dest));
-		cb();
 });
 
 function runUpload(api, branch, code){
@@ -70,13 +62,20 @@ function getFileList(outputFile) {
 	  }
 	})
 	return code
-  }
+}
 
-export const upload = series(async function(cb) {
+export const upload = series(build, async function() {
 	let code = getFileList("dist/main.js")
 	
 	await api.auth();
+	
 	runUpload(api, "default", code)
-
-	cb();
 });
+
+export async function rawUpload() {
+	let code = getFileList("dist/main.js")
+	
+	await api.auth();
+	
+	runUpload(api, "default", code)
+};

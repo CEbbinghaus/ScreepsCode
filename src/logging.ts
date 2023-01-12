@@ -1,35 +1,14 @@
 
-export enum LogLevel {
-	None = 0,
-	Debug,
-	Info,
-	Warn,
-	Error,
-	Critical
-}
+import Logger, {LoggerPipe, LogLevel} from "lipe"
+import { deprecate } from "util";
 
-const DefaultLogLevel = LogLevel.Info;
-const CurrentLogLevel = LogLevel.None;
+export { LogLevel } from "lipe";
 
-/**
- * Lops a message with values
- * @param {string} message
- * @param {any} levelOrData
- * @param  {...any} data
- */
-export function Log(message: string, levelOrData?: LogLevel | any, ...data: any[]) {
-	
-	if(typeof(levelOrData) === "number")
-		levelOrData = {LogLevel: levelOrData};
-	
-	// Combine all elements into one
-	const aggregateData = Object.assign({}, levelOrData, ...data);
+export const MinimumLogLevel = LogLevel.Info;
+export const logger = new Logger();
 
-	const logLevel = (aggregateData.LogLevel || DefaultLogLevel);
+logger.pipe.Pipe((msg, opt) => opt.logLevel > MinimumLogLevel);
+logger.pipe.Pipe((msg) => console.log(msg));
 
-	// Ensure only messages we want get logged
-	if (logLevel < CurrentLogLevel) return;
 
-	// Log the message with the correct Level
-	console.log(`${LogLevel[logLevel]}: ${message}`);
-};
+export const Log = (message: string , level?: number) => logger.Log(message);

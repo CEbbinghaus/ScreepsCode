@@ -30,7 +30,7 @@ export function AcquireEnergy(creep: Creep) {
 	const dropped = creep.pos.findClosestByPath(
 		creep.room
 			.find(FIND_DROPPED_RESOURCES, { filter: (resource) => {
-				return resource.resourceType == RESOURCE_ENERGY && resource.amount > 50
+				return resource.resourceType == RESOURCE_ENERGY && resource.amount > 10
 			} })
 			.sort((a, b) => a.amount - b.amount)
 			.slice(0, 4)

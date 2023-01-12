@@ -26,7 +26,7 @@ export default {
 					if (creep.store.energy) {
 						creep.memory.build = true;
 					} else {
-						creep.moveTo(32, 32);
+						creep.moveTo(25, 25);
 						creep.say("🕰️");
 					}
 					return;
@@ -74,8 +74,7 @@ export default {
  * @returns 
  */
 function findStructureForRepair(creep: Creep) {
-
-	for (const [structureID, assignedCreeps] of Object.entries(Memory.structures)) {
+	for (const [structureID, assignedCreeps] of Object.entries(Memory.structures || {})) {
 		if(assignedCreeps.includes(creep.id))
 		{	
 			const structure = Game.getObjectById(structureID as Id<AnyOwnedStructure>);
@@ -148,6 +147,7 @@ function findStructureForRepair(creep: Creep) {
  * @returns {string}
  */
 function DoBuildTasks(creep: Creep) {
+
 	// Repair what's low.
 	const structureToRepair = findStructureForRepair(creep);
 
@@ -186,6 +186,7 @@ function DoBuildTasks(creep: Creep) {
 		}
 		return "🛠️";
 	}
+
 
 	// Build what needs to be built
 	const construction = creep.pos.findClosestByPath(

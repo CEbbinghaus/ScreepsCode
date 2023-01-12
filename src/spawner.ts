@@ -1,7 +1,11 @@
-import { Log, LogLevel } from "./logging";
+import { logger } from "./logging";
+
+import harvester from "role.harvester";
+import laborer from "role.laborer";
+import builder from "role.builder";
 
 
-export default function() {
+export default async function() {
 
 	for (const [id, room] of Object.entries(Game.rooms)) {
 
@@ -12,7 +16,7 @@ export default function() {
 		const validSpawns = spawns.filter(v => !v.spawning);
 
 		if(!validSpawns.length) {
-			Log(`Room ${id} has no spawning capacity`, LogLevel.Debug);
+			logger.Debug(`Room ${id} has no spawning capacity`);
 			continue;
 		}
 		
@@ -23,23 +27,26 @@ export default function() {
 
 		if((validSpawns.length && (!roles["laborer"] || roles["laborer"].length < 4))) {
 			const spawn = validSpawns.pop() as StructureSpawn;
-			Log("Spawning Laborer")
-			const creep = require("role.laborer").create(spawn)
+			logger.Log("Spawning Laborer")
+			const creep = laborer.create(spawn);
+			//@ts-ignore
 			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
 		}
 		
 		if(validSpawns.length && (!roles["harvester"] || roles["harvester"].length < Math.max(sources.length * 2, 5))) {
 			const spawn = validSpawns.pop() as StructureSpawn;
-			Log("Spawning Harvester")
-			const creep = require("role.harvester").create(spawn)
+			logger.Log("Spawning Harvester")
+			const creep = harvester.create(spawn)
+			//@ts-ignore
 			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
 		}
-
 		
-		if(validSpawns.length && (!roles["builder"] || roles["builder"].length < Math.max(room.find(FIND_CONSTRUCTION_SITES).length, 4))) {
+		
+		if(validSpawns.length && (!roles["builder"] || roles["builder"].length < 4)) {
 			const spawn = validSpawns.pop() as StructureSpawn;
-			Log("Spawning Builder")
-			const creep = require("role.builder").create(spawn)
+			logger.Log("Spawning Builder")
+			const creep = builder.create(spawn)
+			//@ts-ignore
 			spawn.spawnCreep(creep.body, creep.id, {memory: creep.memory});
 		}
 

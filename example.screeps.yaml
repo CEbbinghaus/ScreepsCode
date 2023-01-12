@@ -1,11 +1,19 @@
 
 servers:
-  botarena:
-    host: botarena.screepspl.us
+  world:
+    host: screeps.com
     secure: true
     port: 443
     username: ChangeMe
     password: ChangeMe
+    
+  private:
+    host: your.url
+    secure: false
+    port: 21025
+    username: ChangeMe
+    password: ChangeMe
+
 configs:
   screeps-cap:
     chatTimeout: 30
